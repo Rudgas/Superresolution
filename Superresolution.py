@@ -87,7 +87,6 @@ def tile():
 		tile[:,:,:,2] = npimage[:tdimh,tdimw:,:]
 		tile[:,:,:,3] = npimage[tdimh:,tdimw:,:]
 		
-		
 		for j in range(0,4):
 			outtile = Image.fromarray(tile[:,:,:,j],mode="RGB")
 			outtile.save("./tile" + str(j) + "/" + imlist[i][:-4] + "_tile" + str(j) + ".tif", format='TIFF', compression='None')
@@ -188,7 +187,6 @@ def stitch():
 	#remove merged tiles
 	os.chdir("../..")
 	os.system("rm -r ./process/resized")
-	
 	
 if __name__ == '__main__':
 	main()
