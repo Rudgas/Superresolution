@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image
 
 def main():
-	#resize images to 200% bla
+	#resize images to 200%
 	resize()
 	#call hugin to do an alignment, crop to common covered area
 	align()
@@ -119,7 +119,7 @@ def average():
 		os.chdir("..")
 		
 def median():
-	print("making medians")
+	print("Calculating median values")
 	for i in range(1,5):
 		os.chdir("./tile"+str(i))
 		
@@ -135,9 +135,12 @@ def median():
 		poolmedian = np.zeros((th,tw,3))
 		
 		for rgb in range(0,3):
-			print("Processing median of color Channel: " + str(rgb) + " Tile: " + str(i))
+			color = ["reds","greens","blues"]
+			print("Processing median of " + color[rgb] + " Tile: " + str(i))
+			
 			for j in range(N):
 				tile = np.array(Image.open(tilelist[j]))
+				#copies one color channel into an array containing the same channel from all tiles
 				RGBmedian[:,:,j] = tile[:,:,rgb]
 			poolmedian[:,:,rgb] = np.median(RGBmedian, axis=2, overwrite_input=True)
 		
@@ -156,10 +159,12 @@ def stitch():
 	tile3 = Image.open("./tile3/avg_tile3.tif")
 	tile4 = Image.open("./tile4/avg_tile4.tif")
 	
+	#in case the original has an uneven number of pixels along an axis, we check three tiles
 	w1, h1 = tile1.size
 	w2, h2 = tile2.size
 	w3, h3 = tile3.size
 	
+	#create merged image
 	merged = Image.new('RGB', (w1 + w3, h1 + h2))
 	merged.paste(im = tile1, box=(0,0))
 	merged.paste(im = tile2, box=(0,h1))
@@ -186,7 +191,7 @@ def stitch():
 	
 	merged.save("../superresolution/median_result.tif", format='TIFF', compression='None')
 	
-	#remove merged images
+	#remove merged tiles
 	os.system("rm -r ../resized")
 	
 if __name__ == '__main__':
