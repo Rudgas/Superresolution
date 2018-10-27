@@ -3,6 +3,9 @@ import numpy as np
 from PIL import Image
 
 def main():
+	### setup ###
+	
+	
 	#resize images to 200%
 	resize()
 	#call hugin to do an alignment, crop to common covered area
