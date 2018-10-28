@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import numpy as np
 from PIL import Image
@@ -83,16 +85,32 @@ def tile():
 		tdimw = int(width/2)
 		tdimh = int(height/2)
 		
-		tile = np.zeros((tdimh,tdimw,3,4),dtype=np.uint8)
+		tile0 = npimage[:tdimh,:tdimw,:]
+		tile1 = npimage[tdimh:,:tdimw,:]
+		tile2 = npimage[:tdimh,tdimw:,:]
+		tile3 = npimage[tdimh:,tdimw:,:]
 		
-		tile[:,:,:,0] = npimage[:tdimh,:tdimw,:]
-		tile[:,:,:,1] = npimage[tdimh:,:tdimw,:]
-		tile[:,:,:,2] = npimage[:tdimh,tdimw:,:]
-		tile[:,:,:,3] = npimage[tdimh:,tdimw:,:]
+		outtile = Image.fromarray(tile0,mode="RGB")
+		outtile.save("./tile0/" + imlist[i][:-4] + "_tile0.tif", format='TIFF', compression='None')
+		outtile = Image.fromarray(tile1,mode="RGB")
+		outtile.save("./tile1/" + imlist[i][:-4] + "_tile1.tif", format='TIFF', compression='None')
+		outtile = Image.fromarray(tile2,mode="RGB")
+		outtile.save("./tile2/" + imlist[i][:-4] + "_tile2.tif", format='TIFF', compression='None')
+		outtile = Image.fromarray(tile3,mode="RGB")
+		outtile.save("./tile3/" + imlist[i][:-4] + "_tile3.tif", format='TIFF', compression='None')
+
+		# ~ tile = np.zeros((tdimh,tdimw,3,4),dtype=np.uint8)
 		
-		for j in range(0,4):
-			outtile = Image.fromarray(tile[:,:,:,j],mode="RGB")
-			outtile.save("./tile" + str(j) + "/" + imlist[i][:-4] + "_tile" + str(j) + ".tif", format='TIFF', compression='None')
+		# ~ tile[:,:,:,0] = npimage[:tdimh,:tdimw,:]
+		# ~ tile[:,:,:,1] = npimage[tdimh:,:tdimw,:]
+		# ~ tile[:,:,:,2] = npimage[:tdimh,tdimw:,:]
+		# ~ tile[:,:,:,3] = npimage[tdimh:,tdimw:,:]
+		
+		# ~ for j in range(0,4):
+			# ~ outtile = Image.fromarray(tile[:,:,:,j],mode="RGB")
+			# ~ outtile.save("./tile" + str(j) + "/" + imlist[i][:-4] + "_tile" + str(j) + ".tif", format='TIFF', compression='None')
+		
+		
 		
 	#remove aligned images
 	os.system("rm align*")
