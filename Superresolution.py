@@ -2,6 +2,7 @@
 
 import os
 import numpy as np
+from skimage import io, transform
 from PIL import Image
 
 def main():
@@ -43,11 +44,26 @@ def resize():
 	#resize the images, different algorithms areavailable
 	for i in range(N):
 		print("Resizing: " + imlist[i])
-		npimage = np.array(Image.open(imlist[i]))
-		h, w = npimage.shape[:2]
-		out = Image.fromarray(npimage,mode="RGB")
-		out = out.resize((w*2,h*2), Image.BILINEAR) #Alternatives: Image.LANCZOS Image.BILINEAR Image.NEAREST
-		out.save("./resized/" + imlist[i][:-4] + "_resized.tif", format='TIFF', compression='None') #tiff_lzw
+		
+		#npimage = np.array(Image.open(imlist[i]))
+		image = io.imread(imlist[i])
+		w, h = image.shape[:2]
+		
+		#out = Image.fromarray(npimage,mode="RGB")
+		#out = out.resize((w*2,h*2), Image.BILINEAR) #Alternatives: Image.LANCZOS Image.BILINEAR Image.NEAREST
+		#out.save("./resized/" + imlist[i][:-4] + "_resized.tif", format='TIFF', compression='None') #tiff_lzw
+		
+		
+		#transform has to be duplicated for now, as dtype is lost after transform. preserve memory be reusing image
+		if image.dtype == "uint8":
+			image = transform.resize(image,(w*2,h*2),order=1,preserve_range=True, mode='reflect', anti_aliasing=True) #0 Nearest neighbor 1 Biliniear 2 Biquadratic 3 Bicubic 4 Biquartic 5 biquintic
+			image = np.rint(image).astype(np.uint8)
+		if image.dtype == "uint16":
+			image = transform.resize(image,(w*2,h*2),order=1,preserve_range=True, mode='reflect', anti_aliasing=True) #0 Nearest neighbor 1 Biliniear 2 Biquadratic 3 Bicubic 4 Biquartic 5 biquintic
+			image = np.rint(image).astype(np.uint16)
+		
+		io.imsave("./resized/" + imlist[i][:-4] + "_resized.tif", image)
+	
 	#return to parent directory
 	os.chdir("..")
 
