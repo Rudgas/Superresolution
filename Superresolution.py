@@ -7,7 +7,7 @@ from PIL import Image
 
 def main():
 	### setup ###
-	
+	#configure extrapolation methods in the future
 	
 	#resize images to 200%
 	resize()
