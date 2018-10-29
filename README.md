@@ -1,10 +1,17 @@
 Memory friendly superresolution script using python and hugin
 
 System requirements:
-Linux would probably a whole lot easier than using windows.
-Hugin (open source panorama software)
-Python3
-- Python packages: numpy and pillow
+- Linux (easier than using windows but both work)
+- Hugin (free & open source panorama software)
+- libvips (8.7.0) (install BEFORE installing pyvips)
+- Python3
+-- Python packages: numpy, pillow, scikit-image, pyvips
+
+Expected Input:
+- A folder called 'process' in the same folder the script is in
+- Images inside the folder process of the following formats:
+8bit or 16bit *.tif *.TIF *.tiff *.TIFF *.jpg *.JPG
+- Images that are very similar. Best results using handheld burst mode or tripod
 
 For a ~15 Image Stack of 24MP Images:
 RAM 6GB or 8GB will be enough for 24MP images (4GB might just cut it)
