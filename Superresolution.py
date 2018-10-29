@@ -53,7 +53,7 @@ def resize():
 	for i in range(N):
 		print("Resizing: " + imlist[i])
 		img = pyvips.Image.new_from_file(imlist[0], access='sequential')
-		out = img.resize(2, kernel = 2) #0 = nearest neighbor 1 bilinear 2 bicubic 3 etc..
+		out = img.resize(2) #0 = nearest neighbor 1 bilinear 2 bicubic 3 etc..
 		out.write_to_file("./resized/" + imlist[i][:-4] + "_resized.tif")
 	
 	#return to parent directory
