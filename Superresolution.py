@@ -87,6 +87,7 @@ def resize():
 	#Use Pillow instead of skimage for 8bit images as skimage converts to float64 when rescaling				
 	if io.imread(imlist[0]).dtype == "uint8":
 		for i in range(N):
+			print("Resizing: " + imlist[i])
 			npimage = np.array(Image.open(imlist[i]))
 			h, w = npimage.shape[:2]
 			out = Image.fromarray(npimage,mode="RGB")
@@ -148,7 +149,7 @@ def tile():
 			print("Tiling: " + imlist[i])
 			
 			npimage = np.array(Image.open(imlist[i]))
-			width, height = npimage.size
+			width, height = npimage.shape[:2]
 			
 			#calculate boundaries for four tiles
 			tdimw = int(width/2)
