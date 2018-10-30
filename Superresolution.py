@@ -26,20 +26,23 @@ def main():
 	 
 def resize():
 	#check if directories are present
-	try:
+	print("----- Resizing Images -----")
+	if os.path.exists("./process"):
 		os.chdir("./process")
-	except:
+	else:
 		print("Please create a folder 'process' and add images that are to be processed")
 		exit()
-	try:
-		os.mkdir("./resized")
-	except:
-		print("Directory already created")
 	
-	#get a list of all files
+	if not os.path.exists("./resized"):
+		os.mkdir("./resized")
+	
+	#get a list of all files, check if more than one file is available
 	allfiles = os.listdir()
 	imlist = [filename for filename in allfiles if filename[-4:] in [".jpg",".JPG",".tif",".TIF","TIFF","tiff"]]
 	N = len(imlist)
+	if N <= 1:
+		print("Please use more than one image File")
+		exit()
 	
 	#For 16bit Images: split images into 4 before resizing, however
 	#this eliminiates using any extrapolation for the upscaling as
@@ -99,19 +102,20 @@ def resize():
 
 def align():
 	#use hugin for alignment of images
+	print("----- Aligning Images -----")
 	os.chdir("./process/resized")
 	os.system("align_image_stack --use-given-order -C -x -y -z -a aligned_ --corr=0.8 -t 1 -c 100 -v --gpu *.tif")
 	os.system("rm *_resized.tif")
 	os.chdir("../..")
 
 def tile():
+	print("----- Tiling Images -----")
 	os.chdir("./process/resized")
 	#create folders for the 4 tiles
 	for i in range(4):
-		try:
+		if not os.path.exists("tile"+str(i)):
 			os.mkdir("tile"+str(i))
-		except:
-			print("folder present")
+			
 	#get list of image files
 	allfiles = os.listdir()
 	imlist = [filename for filename in allfiles if filename[-4:] in [".jpg",".JPG",".tif",".TIF","TIFF","tiff"]]
@@ -178,8 +182,9 @@ def tile():
 	
 def average():
 	#calculate average values for each pixel
+	print("----- Averaging Images -----")
 	os.chdir("./process/resized")
-	print("Calculating averages")
+	
 	for i in range(4):
 		os.chdir("./tile"+str(i))
 		
@@ -218,8 +223,10 @@ def average():
 	os.chdir("../..")
 		
 def median():
+	#Calculate Median of Images
+	print("----- Medianing Images -----")
 	os.chdir("./process/resized")
-	print("Calculating median values")
+	
 	for i in range(4):
 		os.chdir("./tile"+str(i))
 		
@@ -276,12 +283,11 @@ def median():
 	os.chdir("../..")
 		
 def stitch():
-	try: 
+	#Stitch all tiles back together
+	print("----- Stitching Images -----")
+	if not os.path.exists("./process/superresolution"):
 		os.mkdir("./process/superresolution")
-	except:
-		print("folder present")
 	os.chdir("./process/resized")
-	print("Stitching everything together")
 	
 	#combination
 	methods = ["avg", "median"]
