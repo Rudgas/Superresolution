@@ -8,20 +8,21 @@ By increasing the scale prior to alignment, sub-RGB-pixel resolution can be achi
 The following programs and python packages are needed:
 
 - Hugin
+- libvips
 - Python 3
-  - numpy
-  - scikit-image
-  - Pillow
+  - pyvips
+
+Please note that libvips needs to be installed before pyvips, otherwise it will around 20% slower. To check see: https://pypi.org/project/pyvips/
 
 Python packages can be installed either through your distribution e.g. *buntu/debian:
 ```
-sudo apt install python3-skimage
+sudo apt-get install hugin
 ```
 Please note that for different distributions packages might be called differently. Also make sure you are getting the python 3 version of all packages.
 
 Or through pythons own package installer pip e.g.:
 ```
-pip3 install --user scikit-image numpy pillow
+pip3 install --user pyvips
 ```
 
 ### Installing
@@ -51,7 +52,5 @@ If everything went well, a folder called superresolution will be created, contai
 ## How it works
 1. Images are resized to 200% using Bilinear extrapolation (tried several, looked best to me), saved as tif (uncompressed to speed stuff up).
 2. Images are aligned using hugin, and cropped to an area all images cover. (this is done on the gpu).
-3. Aligned images are sliced into 4 pieces to save on RAM.
-4. Averages are calculated for all 4 tiles for each pixel.
-5. Median values are calculated for each pixel (each channel RGB separately).
-6. Tiles are stitched back together and the two output files are created and saved in the folder superresolution.
+3. Averages and Median values are calculated for each pixel (each channel RGB separately).
+4. The two output files are created and saved in the folder superresolution.
