@@ -10,23 +10,26 @@ def main():
 	### setup ###
 	#configure extrapolation methods in the future
 	
-
-	
-	
-	
-	
 	#resize images to 200%
 	resize()
+	
 	#call hugin to do an alignment, crop to common covered area
 	align()
+	
 	#split images into 4 tiles
-	tile()
+	#tile()
+	
 	#calculate average for each pixel
 	average()
+	
 	#calculate median for each pixel
 	median()
+	
 	#stitch all 4 tiles back together
-	stitch()
+	#stitch()
+	
+	#remove intermediary files
+	cleanup()
 	
 	print("Done!")
 	 
@@ -65,7 +68,7 @@ def align():
 	print("----- Aligning Images -----")
 	#use hugin for alignment of images
 	os.chdir("./process/resized")
-	os.system("align_image_stack --use-given-order -C -x -y -z -a aligned_ --corr=0.8 -t 1 -c 100 -v --gpu *.tif") #try scale option
+	os.system("align_image_stack --use-given-order -C -x -y -z -a aligned_ -s 1 --corr=0.8 -t 1 -c 100 -v --gpu *.tif") #try scale option
 	os.system("rm *_resized.tif")
 	os.chdir("../..")
 
@@ -119,101 +122,71 @@ def average():
 	print("----- Averaging Images -----")
 	os.chdir("./process/resized")
 	
-	for i in range(4):
-		os.chdir("./tile"+str(i))
+	# ~ for i in range(4):
+		# ~ os.chdir("./tile"+str(i))
 		
-		allfiles = os.listdir()
-		tilelist = [filename for filename in allfiles if filename[:7] == "aligned"] 
-		N = len(tilelist)
-
-		# ~ reds = []
-		# ~ greens = []
-		# ~ blues = []
+	allfiles = os.listdir()
+	tilelist = [filename for filename in allfiles if filename[:7] == "aligned"] 
+	N = len(tilelist)
+	
+	#get dtpye of input data
+	avgs = pyvips.Image.new_from_file(tilelist[0], access='sequential')
+	input_format = avgs.format
+	
+	#make list containing all images	
+	avgs = []
+	for i in range(N):
+		avgs.append(pyvips.Image.new_from_file(tilelist[i], access='sequential'))
+	
 		
-		# ~ #extract each color
-		# ~ for j in range(N):
-			# ~ reds.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[0])
-			# ~ greens.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[1])
-			# ~ blues.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[2])
-		
-		# ~ #find mean for each channel
-		# ~ red = pyvips.Image.bandmean(reds)
-		# ~ green = pyvips.Image.bandrank(greens)
-		# ~ blue = pyvips.Image.bandrank(blues)
-		
-		# ~ #join rgb bands again
-		# ~ mean = red.bandjoin(green)
-		# ~ mean = median.bandjoin(blue)
-		
-		# ~ mean.write_to_file("average_tile" + str(i) + ".tif")
-
-		# ~ os.chdir("..")
-
-		#Averaging 16bit Images
-		if io.imread(tilelist[0]).dtype == "uint16":
-			th, tw = io.imread(tilelist[0]).shape[:2]
-			pooltile = np.zeros((th,tw,3), dtype=float)
-			
-			for j in range(N):
-				print("Processing Tile " + str(j) + ": " + tilelist[j])
-				tile = io.imread(tilelist[j])
-				pooltile += tile/N
-		
-			pooltile = np.round(pooltile).astype(np.uint16)
-			io.imsave("avg_tile" + str(i) + ".tif", tile)
-		
-		#Averaging 8bit Images
-		if io.imread(tilelist[0]).dtype == "uint8":
-			tw, th = Image.open(tilelist[0]).size
-			pooltile = np.zeros((th,tw,3), dtype=float)
-			
-			for j in range(N):
-				print("Processing Tile " + str(j) + ": " + tilelist[j])
-				tile = np.array(Image.open(tilelist[j]))
-				pooltile += tile/N
-			
-			pooltile = np.round(pooltile).astype(np.uint8)
-			outpooltile = Image.fromarray(pooltile,mode="RGB")
-			outpooltile.save("avg_tile" + str(i) + ".tif", format='TIFF', compression='None')
-		os.chdir("..")
-
+	#calculate average: round and cast to former datatype
+	avg = pyvips.Image.sum(avgs)/N
+	avg = avg.rint()
+	avg = avg.cast(input_format)
+	
+	#check if folder available
+	if not os.path.exists("../superresolution"):
+		os.mkdir("../superresolution")
+	
+	avg.write_to_file("../superresolution/avg_result.tif")
+	
 	os.chdir("../..")	
-
-		
+	
 def median():
 	#Calculate Median of Images ------vips_extract_band ()
 	print("----- Medianing Images -----")
 	os.chdir("./process/resized")
-	for i in range(4):
-		print("Processing Tile 1")
-		os.chdir("./tile"+str(i))
+	
+	allfiles = os.listdir()
+	tilelist = [filename for filename in allfiles if filename[:7] == "aligned"] 
+	N = len(tilelist)
+	
+	reds = []
+	greens = []
+	blues = []
+	
+	#extract each color
+	for j in range(N):
+		reds.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[0])
+		greens.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[1])
+		blues.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[2])
+	
+	#find median for each channel
+	red = pyvips.Image.bandrank(N, reds)
+	green = pyvips.Image.bandrank(N, greens)
+	blue = pyvips.Image.bandrank(N, blues)
+	
+	#join rgb bands again
+	median = red.bandjoin(green)
+	median = median.bandjoin(blue)
+	
+	#check if folder available
+	if not os.path.exists("../superresolution"):
+		os.mkdir("../superresolution")
+	
+	median.write_to_file("../superresolution/median_result.tif")
 		
-		allfiles = os.listdir()
-		tilelist = [filename for filename in allfiles if filename[:7] == "aligned"] 
-		N = len(tilelist)
-		
-		reds = []
-		greens = []
-		blues = []
-		
-		#extract each color
-		for j in range(N):
-			reds.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[0])
-			greens.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[1])
-			blues.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[2])
-		
-		#find median for each channel
-		red = pyvips.Image.bandrank(N, reds)
-		green = pyvips.Image.bandrank(N, greens)
-		blue = pyvips.Image.bandrank(N, blues)
-		
-		#join rgb bands again
-		median = red.bandjoin(green)
-		median = median.bandjoin(blue)
-		
-		median.write_to_file("median_tile" + str(i) + ".tif")
-		
-		os.chdir("..")	
+#		os.chdir("..")	
 	os.chdir("../..")		
 		
 """
@@ -284,7 +257,10 @@ def stitch():
 	
 	#remove merged tiles
 	os.chdir("../..")
+	
+def cleanup():
 	os.system("rm -r ./process/resized")
+	
 	
 if __name__ == '__main__':
 	main()
