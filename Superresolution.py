@@ -52,7 +52,7 @@ def resize():
 		
 	for i in range(N):
 		print("Resizing: " + imlist[i])
-		img = pyvips.Image.new_from_file(imlist[0], access='sequential')
+		img = pyvips.Image.new_from_file(imlist[i], access='sequential')
 		#img = img.gaussblur(0.45, precision='float', min_ampl=0.01).cast('uchar')
 		img = img.gaussblur(0.50, precision='float', min_ampl=0.01).cast('uchar')
 		out = img.resize(2, kernel = "linear", centre = True) #nearest linear cubic mitchell lanczos2 lanczos3
@@ -125,7 +125,30 @@ def average():
 		allfiles = os.listdir()
 		tilelist = [filename for filename in allfiles if filename[:7] == "aligned"] 
 		N = len(tilelist)
+
+		# ~ reds = []
+		# ~ greens = []
+		# ~ blues = []
 		
+		# ~ #extract each color
+		# ~ for j in range(N):
+			# ~ reds.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[0])
+			# ~ greens.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[1])
+			# ~ blues.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[2])
+		
+		# ~ #find mean for each channel
+		# ~ red = pyvips.Image.bandmean(reds)
+		# ~ green = pyvips.Image.bandrank(greens)
+		# ~ blue = pyvips.Image.bandrank(blues)
+		
+		# ~ #join rgb bands again
+		# ~ mean = red.bandjoin(green)
+		# ~ mean = median.bandjoin(blue)
+		
+		# ~ mean.write_to_file("average_tile" + str(i) + ".tif")
+
+		# ~ os.chdir("..")
+
 		#Averaging 16bit Images
 		if io.imread(tilelist[0]).dtype == "uint16":
 			th, tw = io.imread(tilelist[0]).shape[:2]
@@ -154,19 +177,46 @@ def average():
 			outpooltile.save("avg_tile" + str(i) + ".tif", format='TIFF', compression='None')
 		os.chdir("..")
 
-	os.chdir("../..")
+	os.chdir("../..")	
+
 		
 def median():
 	#Calculate Median of Images ------vips_extract_band ()
 	print("----- Medianing Images -----")
 	os.chdir("./process/resized")
 	for i in range(4):
+		print("Processing Tile 1")
 		os.chdir("./tile"+str(i))
 		
 		allfiles = os.listdir()
 		tilelist = [filename for filename in allfiles if filename[:7] == "aligned"] 
 		N = len(tilelist)
 		
+		reds = []
+		greens = []
+		blues = []
+		
+		#extract each color
+		for j in range(N):
+			reds.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[0])
+			greens.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[1])
+			blues.append(pyvips.Image.new_from_file(tilelist[j], access='sequential')[2])
+		
+		#find median for each channel
+		red = pyvips.Image.bandrank(N, reds)
+		green = pyvips.Image.bandrank(N, greens)
+		blue = pyvips.Image.bandrank(N, blues)
+		
+		#join rgb bands again
+		median = red.bandjoin(green)
+		median = median.bandjoin(blue)
+		
+		median.write_to_file("median_tile" + str(i) + ".tif")
+		
+		os.chdir("..")	
+	os.chdir("../..")		
+		
+"""
 		#Median of 16bit Images
 		if io.imread(tilelist[0]).dtype == "uint16":
 			#get tile size
@@ -211,10 +261,8 @@ def median():
 			poolmedian = np.round(poolmedian).astype(np.uint8)
 			outpoolmedian = Image.fromarray(poolmedian,mode="RGB")
 			outpoolmedian.save("median_tile" + str(i) + ".tif", format='TIFF', compression='None')
-		os.chdir("..")
+"""
 
-	os.chdir("../..")
-		
 def stitch():
 	#Stitch all tiles back together
 	print("----- Stitching Images -----")
