@@ -12,7 +12,7 @@ The following programs and python packages are needed:
 - Python 3
   - pyvips
 
-Please note that libvips needs to be installed before pyvips, otherwise it will around 20% slower. To check see: https://pypi.org/project/pyvips/
+Please note that libvips needs to be installed before pyvips, otherwise it will be a bit slower. To check see: https://pypi.org/project/pyvips/
 
 Python packages can be installed either through your distribution e.g. *buntu/debian:
 ```
