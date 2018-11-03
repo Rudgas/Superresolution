@@ -55,5 +55,3 @@ If everything went well, a folder called superresolution will be created, contai
 4. Averages are calculated for all 4 tiles for each pixel.
 5. Median values are calculated for each pixel (each channel RGB separately).
 6. Tiles are stitched back together and the two output files are created and saved in the folder superresolution.
-
-
