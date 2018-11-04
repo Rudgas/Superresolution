@@ -5,6 +5,8 @@ By increasing the scale prior to alignment, sub-RGB-pixel resolution can be achi
 
 ### Prerequisites
 
+Execute superresolution.bin or install deps for the script:
+
 The following programs and python packages are needed:
 
 - Hugin
@@ -41,7 +43,6 @@ Copy a stack of images into the folder process, for a typical application use ha
 Images can be of format jpg or tif, in 8bit or 16bit.
 
 **A word of caution: For 8bit 24MP image-stacks at least 4GB of free RAM are needed. And approximately 0.5GB of HDD space per image.
-For 16bit images at least 6GB of free RAM is needed.**
 
 Run the script in a terminal (or use the editor geany -> execute) to follow the progress.
 ```

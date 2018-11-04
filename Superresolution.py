@@ -48,7 +48,7 @@ def resize():
 		print("Resizing: " + imlist[i])
 		img = pyvips.Image.new_from_file(imlist[i], access='sequential')
 		#img = img.gaussblur(0.45, precision='float', min_ampl=0.01).cast('uchar')
-		img = img.gaussblur(0.50, precision='float', min_ampl=0.01).cast('uchar')
+		#img = img.gaussblur(0.50, precision='float', min_ampl=0.01).cast('uchar')
 		out = img.resize(2, kernel = "linear", centre = True) #nearest linear cubic mitchell lanczos2 lanczos3
 		out.write_to_file("./resized/" + imlist[i][:-4] + "_resized.tif")
 		
