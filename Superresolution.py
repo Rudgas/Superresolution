@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+#To build executable
+#python3.7 -m nuitka --follow-imports Superresolution.py
+
 import os
 import pyvips
 
